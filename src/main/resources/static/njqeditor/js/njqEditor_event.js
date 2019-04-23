@@ -1,28 +1,28 @@
 (function () {
-	function loadEvent(njqEditor){
+	function loadEvent(editorConfig){
 		// 编辑器总对象
 	    var njqEditor = window.njqEditor;
 	    var sysConfig = njqEditor.sysConfig;
-	    var userConfig = njqEditor.userConfig;
+	    var userConfig = editorConfig.userConfig;
 	    var tools = njqEditor.toolConfig.toolsNode,
 	        toolsConfig = njqEditor.toolConfig.tools,
 	        util = njqEditor.util,
 	        constants = njqEditor.constants,
 	        ieFlag = sysConfig.ieFlag,
-	        njqHistory = sysConfig.njqHistory,
-	        rangeTable = sysConfig.rangeTable,
-	        rangePic = sysConfig.rangePic,
+	        njqHistory = userConfig.njqHistory,
+	        rangeTable = userConfig.rangeTable,
+	        rangePic = userConfig.rangePic,
 	        parentIncludeNode = sysConfig.parentIncludeNode,
 	        singleNode = sysConfig.singleNode,
 	        ignoreNode = sysConfig.ignoreNode,
 	        resetRange = null,
-	        ids = njqEditor.sysConfig.editNode;
+	        ids = editorConfig.idsNode;
 	    // 存放一些中间变量，用于方法间的过渡
 	    var tempVar = {};
 	    // 上传图片缓存
 	    var upPicArray = {};
 	    
-	 // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器
+	    // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器
         var editorNode = ids.editor;
         // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器文本区
         var editorContext = ids.editorContext;
@@ -34,7 +34,7 @@
          * countTimer:统计字数 initTimer:重置按钮背景
          */
         var saveSceneTimer, countTimer, initTimer;
-        var makeDialog = njqEditor.makeDialog;
+        var makeDialog = editorConfig.makeDialog;
         var dialog = njqEditor.initDialog;
         var stMark = util.createCustomNode(constants.BOOKMARK);
         stMark.checkNext = true;
@@ -227,7 +227,7 @@
 
                 // 加载外部js时需要使用
                 njqEditor.dialogIds = {};
-                var makeDialog = njqEditor.makeDialog;
+                var makeDialog = editorConfig.makeDialog;
                 var btn;
                 var waitDialog = [];
                 for (var tool in tools) {
@@ -578,12 +578,12 @@
             _allFullSceen: function () {
                 if (this.btnDownFlag) {
                     // 取消全屏
-                    styles.cancelFullSceen(editorNode);
+                    styles.cancelFullSceen(editorNode,editorConfig.prefix);
                     this.btnDownFlag = false;
                     styles.btnRecoverColor(this);
                 } else {
                     // 全屏
-                    styles.fullSceen(editorNode);
+                    styles.fullSceen(editorNode,editorConfig.prefix);
                     this.btnDownFlag = true;
                     styles.btnChangeColor(this);
                 }
@@ -842,7 +842,9 @@
                 } else {
                     pnode = ids.editorTool.getElementById(this.getId);
                 }
-                service.setParaOper("margin-top: " + pnode.setValue);
+                if(pnode.setValue){
+                	service.setParaOper("margin-top: " + pnode.setValue);                	
+                }
             },
             // 段后距-按钮事件
             _afterHeight: function () {
@@ -855,7 +857,9 @@
                 } else {
                     pnode = ids.editorTool.getElementById(this.getId);
                 }
-                service.setParaOper("margin-bottom: " + pnode.setValue);
+                if(pnode.setValue){
+                	service.setParaOper("margin-bottom: " + pnode.setValue);                	
+                }
             },
             // 上下间距-行间距按钮事件
             _lineHeight: function () {
@@ -868,7 +872,9 @@
                 } else {
                     pnode = ids.editorTool.getElementById(this.getId);
                 }
-                service.setParaOper("line-height: " + pnode.setValue);
+                if(pnode.setValue){
+                	service.setParaOper("line-height: " + pnode.setValue);                	
+                }
             },
             // 有序列表-按钮事件
             _selectOrderList: function () {
@@ -979,7 +985,7 @@
                     }
                 }
                 var range = service.getRange();
-                util.cutDiv(table, range);
+                service.cutDiv(table, range);
                 rangeTable.table = table;
                 service.getTableInfo(ftd);
                 resetRange.setStart(ftd, 0);
@@ -1134,14 +1140,14 @@
             },
             // 年月日-插入年月日
             _monthDay: function () {
-                var range = util.rangeAreaDele(service.getRange());
+                var range = service.rangeAreaDele(service.getRange());
                 var monthNode = service.getYMD();
                 service.insertNode(range, monthNode);
                 service.setRangeAfter(monthNode);
             },
             // 时分秒-插入时分秒
             _dayTime: function () {
-                var range = util.rangeAreaDele(service.getRange());
+                var range = service.rangeAreaDele(service.getRange());
                 var timeNode = service.getHmD();
                 service.insertNode(range, timeNode);
                 service.setRangeAfter(timeNode);
@@ -1152,7 +1158,7 @@
             },
             // 表情-插入表情
             _expression: function () {
-                var range = util.rangeAreaDele(service.getRange());
+                var range = service.rangeAreaDele(service.getRange());
                 var img = util.createCustomNode(constants.IMG);
                 img.src = this.getpic;
                 util.addCommonEventListener(img, "click", "_seleImg", 5);
@@ -1229,7 +1235,7 @@
                 var range = service.getRange();
                 //把选区的内容进行删除
                 if (!range.collapsed) {
-                    util.rangeAreaDele(range);
+                	service.rangeAreaDele(range);
                 }
                 //将开始标签插入到节点中做标记
                 service.insertNode(range, stMark);
@@ -1549,6 +1555,13 @@
          * 业务逻辑处理层，类似于service层
          */
         var service = njqEditor.serviceImpl = {
+        	//重置id
+        	resetId:function(oldId){
+        		if(editorConfig.prefix){
+        			return editorConfig.prefix+oldId        			
+        		}
+        		return oldId;
+        	},
             //源码编写添加标红节点
             resetRangePlace: function () {
                 var range = util.getRange();
@@ -1796,7 +1809,7 @@
             // 弹框服务
             showDialog: function (btnNode) {
                 var id = btnNode.dlgId;
-                var nodeDialog = ids.editorDlgDiv.getElementById(id);
+                var nodeDialog = ids.editorDlgDiv.getElementById(this.resetId(id));
                 /*
 				 * 如果弹框尚未初始化，那么进行初始化
 				 */
@@ -1952,7 +1965,7 @@
             // 插入分隔线
             cutLine: function () {
                 var hr = util.createCustomNode(constants.HR);
-                var range = util.cutDiv(hr, this.getRange());
+                var range = service.cutDiv(hr, this.getRange());
                 resetRange.setStartBefore(util.getMinNode(range.startContainer.nextSibling));
                 resetRange.collapse(true);
             },
@@ -2597,7 +2610,7 @@
                     ids.picSele.bandNode.remove();
                     this.insertNode(range, img);
                 } else {
-                    util.rangeAreaDele(range);
+                	service.rangeAreaDele(range);
                     this.insertNode(range, img);
                 }
                 //将图片放入缓存集合中
@@ -2611,7 +2624,7 @@
             // 批量插入图片
             morePicsInsert: function (imgs) {
                 var range = this.getRange();
-                util.rangeAreaDele(range);
+                this.rangeAreaDele(range);
                 var fimg = imgs[0];
                 var eimg = imgs[imgs.length - 1];
                 var timg;
@@ -3752,7 +3765,7 @@
             //粘贴前处理
             beforePaste: function (decodeNode) {
                 //粘贴代码的时候会出现内部全是id相同的节点，需要进行替换
-                var sameIdNodes = decodeNode.getElementById(decodeNode.id);
+                var sameIdNodes = decodeNode.getElementById(this.resetId(decodeNode.id));
                 if (sameIdNodes) {
                     for (var i = 0; i < sameIdNodes.length; i++) {
                         var div = util.createCustomNode(constants.DIV);
@@ -4644,7 +4657,7 @@
                 if (this.checkRuleBase(node, btn)) {
                     return;
                 }
-                var nodeDialog = ids.editorDlgDiv.getElementById(btn.dlgId);
+                var nodeDialog = ids.editorDlgDiv.getElementById(this.resetId(btn.dlgId));
                 var parent = util.getOutParentNode(node);
                 if (!parent) {
                     return;
@@ -5971,7 +5984,7 @@
                 var liNode = util.getSpecalParentNode(constants.LI, range.startContainer);
                 if (liNode) {
                     if (!range.collapsed) {
-                        util.rangeAreaDele(range);
+                        this.rangeAreaDele(range);
                     }
                     /*
 					 * 判断当前li的节点是否为空的节点 如果是空的，那么点击回车会创建div节点，放在当前div后面
@@ -6060,7 +6073,7 @@
                 var tableNode = util.getSpecalParentNode(constants.TABLE, range.startContainer);
                 if (tableNode) {
                     if (!range.collapsed) {
-                        util.rangeAreaDele(range);
+                        this.rangeAreaDele(range);
                     }
                     var brnode = util.createCustomNode(constants.BR);
                     if (range.startContainer.innerHTML == constants.EMPTY) {
@@ -6074,7 +6087,7 @@
                     this.setRangeAfter(brnode);
                 }
                 if (flag) {
-                    resetRange = util.cutDiv(null, this.getRange());
+                    resetRange = service.cutDiv(null, this.getRange());
                 }
                 exNode = resetRange.startContainer;
                 if(window.getComputedStyle(ids.editorEditorDiv,null).height==window.getComputedStyle(ids.editorBody,null).height){
@@ -6095,7 +6108,7 @@
                         e.preventDefault();
                         return;
                     } else {
-                        util.rangeAreaDele(range);
+                        this.rangeAreaDele(range);
                     }
                 }
                 var span = util.createCustomNode(constants.SPAN);
@@ -6509,17 +6522,171 @@
             },
             hiPic: function () {
                 styles.hideStyleNode(ids.picSele);
+            },
+            /**
+             * 拆分div成为上下多行 node:拆分出来的单元格中间添加的节点
+             */
+            cutDiv: function (node, range) {
+                var sparentNode, enterNode, exNode;
+                for (var i in parentIncludeNode) {
+                    sparentNode = util.getSpecalParentNode(parentIncludeNode[i],
+                        range.startContainer);
+                    if (sparentNode) {
+                        break;
+                    }
+                }
+                if (!sparentNode) {
+                    var dNode = util.createEmptyNode(constants.DIV);
+                    if (range.startOffset > 0) {
+                    	util.insertAfter(dNode, range.startContainer.childNodes[range.startOffset - 1]);
+                    } else {
+                    	util.insertAfter(dNode, range.startContainer.childNodes[range.startOffset]);
+                    }
+                    range.setStartBefore(util.getMinNode(dNode));
+                    return range;
+                }
+                if (!range.collapsed) {
+                	util.deleteContents(range);
+                    sparentNode = util.getOutParentNode(range.startContainer);
+                }
+                if (range.collapsed && range.startContainer.id) {
+                    return util.insertNextNode(range, node);
+                }
+                if (node) {
+                    if (sparentNode.tagName == constants.TABLE) {
+                        var insertNode = util.insertCustomNode(node, sparentNode, 2);
+                        if (!insertNode.nextSibling) {
+                            var d = util.createEmptyNode(constants.DIV);
+                            util.insertAfter(d, insertNode);
+                        }
+                        range.setStartBefore(util.getMinNode(insertNode));
+                        return range;
+                    }
+                    if (util.checkIsSerisNodeChild(sparentNode,
+                        range.startContainer, range, 1)) {
+                        var insertNode = util.insertCustomNode(node, sparentNode, 1);
+                        range.setStartBefore(util.getMinNode(insertNode));
+                        return range;
+                    }
+                    if (util.checkIsSerisNodeChild(sparentNode, range.endContainer, range, 2)) {
+                        if (!sparentNode.nextElementSibling) {
+                            var lastNode = util.createCustomNode(constants.DIV);
+                            lastNode.appendChild(util.createCustomNode(constants.BR));
+                            util.insertAfter(lastNode, sparentNode);
+                        }
+                        var insertNode = util.insertCustomNode(node, sparentNode, 2);
+                        range.setStartBefore(util.getMinNode(insertNode));
+                        return range;
+                    }
+                }
+                if (!ids.editorContext.contains(sparentNode)) {
+                    if (range.startContainer.id) {
+                        return util.insertNextNode(range, node);
+                    } else {
+                        var insertNode = util.insertCustomNode(node, util.getOutParentNode(range.startContainer), 2);
+                        range.setStartBefore(util.getMinNode(insertNode));
+                        range.collapse(true);
+                        if (!insertNode.nextSibling) {
+                        	util.insertAfter(util.createEmptyNode(constants.DIV), insertNode);
+                        }
+                        return range;
+                    }
+                }
+                var tempRange = range.cloneRange();
+                tempRange.collapse(false);
+                try {
+                    tempRange.setEndAfter(sparentNode);
+                } catch (e) {
+                    console.info("出现异常了");
+                }
+                exNode = util.extractContents(tempRange, true);
+                // 剪切后原节点可能变成空节点了，所以补充一个回车符
+                if (util.checkIsEmpty(range.startContainer)) {
+                    range.startContainer.appendChild(util.createCustomNode(constants.BR));
+                }
+                if (exNode.firstChild) {
+                    var childNode = enterNode = exNode.firstChild;
+                    if (childNode.firstChild) {
+                        while (childNode.firstChild) {
+                            childNode = childNode.firstChild;
+                            // 此处判断主要是用于在空节点中加回车符
+                            if (util.checkIsEmpty(childNode)) {
+                                if (childNode.nodeType != 1) {
+                                    childNode = childNode.parentNode;
+                                }
+                                // 针对光标在节点最后位置的情况
+                                childNode.appendChild(util.createCustomNode(constants.BR));
+                                break;
+                            }
+                        }
+                    } else {
+                        childNode.appendChild(util.createCustomNode(constants.BR));
+                    }
+                    util.insertAfter(enterNode, sparentNode);
+                } else {
+                    enterNode = sparentNode.nextSibling;
+                }
+
+                if (node) {
+                	util.insertCustomNode(node, enterNode, 1);
+                }
+                if (util.checkIsEmpty(sparentNode)) {
+                    sparentNode.appendChild(util.createCustomNode(constants.BR));
+                }
+                if (util.checkIstouNode(enterNode)) {
+                    range.setStart(enterNode.firstChild.firstChild, 0);
+                } else {
+                    range.setStartBefore(enterNode.firstChild);
+                }
+                range.collapse(true);
+                return range;
+            },
+            /**
+             * 删除选区选中的文字
+             */
+            rangeAreaDele: function (range) {
+                if (!range.collapsed) {
+                    var soutNode = util.getOutParentNode(range.startContainer);
+                    eoutNode = util.getOutParentNode(range.endContainer);
+                    if (soutNode != eoutNode) {
+                        if (util.checkIsTextNode(range.endContainer)) {
+                            if (range.endContainer.length == range.endOffset &&
+                                range.endContainer == util.getlastTextNode(util.getOutParentNode(range.endContainer))) {
+                                range.setEndAfter(eoutNode);
+                            }
+                        }
+                    }
+                    util.deleteContents(range);
+                }
+                return range;
+            },
+            /**
+             * 删除选区
+             */
+            deleteContents: function (range) {
+                util.deleteContents(range);
+                //不管怎么删除，都不能删除编辑区的所有内容
+                if (util.checkIsEmpty(ids.editorContext)) {
+                    var divNode = util.createEmptyNode(constants.DIV);
+                    ids.editorContext.appendChild(divNode);
+                    range.setStartBefore(util.getMinNode(divNode));
+                    range.collapse(true);
+                } else {
+                    util.resetParentNodeNewRange(range.startContainer, range);
+                }
             }
+            
+            
         };
         var dlgs = ids.editorDlgDiv;
         // 构建弹框
-        var makeDialog = njqEditor.makeDialog = {
+        var makeDialog = editorConfig.makeDialog = {
             // 弹框基本初始化
             baseSet: function (text, node, isCenter) {
                 var temp = util.createCustomNode(constants.DIV), top, left;
                 temp.innerHTML = text;
                 temp = temp.firstChild;
-                temp.id = node.dlgId;
+                temp.id = editorConfig.prefix+node.dlgId;
                 temp.btnId = node.id;
                 dlgs.appendChild(temp);
                 if (isCenter) {
@@ -6856,7 +7023,7 @@
                     fun(text);
                 }
             }
-            xmlhttp.open("GET", userConfig.url + url, true);
+            xmlhttp.open("GET", window.njqEditor.sysConfig.url + url, true);
             xmlhttp.send();
         }
         // html中的js
@@ -6865,12 +7032,12 @@
             var sl = src.split("/");
             var key = sl[sl.length - 1];
             if (njqEditor.dialogIds[key]) {
-                njqEditor.dialogIds[key].push(id + "&" + dlgId);
+                njqEditor.dialogIds[key].push(id + "&" + editorConfig.prefix+dlgId);
             } else {
-                njqEditor.dialogIds[key] = [(id + "&" + dlgId)];
+                njqEditor.dialogIds[key] = [(id + "&" + editorConfig.prefix+dlgId)];
             }
             var hm = util.createCustomNode("script");
-            hm.src = userConfig.url + "dialog/" + src;
+            hm.src = window.njqEditor.sysConfig.url + "dialog/" + src;
             util.getElementsByTagName(document, 'head')[0].appendChild(hm);
             if (fun) {
                 fun();

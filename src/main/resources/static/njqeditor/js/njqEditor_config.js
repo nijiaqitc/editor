@@ -1,20 +1,172 @@
 (function() {
-	/*----------------浏览器校验低版本不绑定事件开始--------------------*/
-	var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
-    var isOpera = userAgent.indexOf("Opera") > -1; //判断是否Opera浏览器
-    var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera; //判断是否IE浏览器
-//    var isFF = userAgent.indexOf("Firefox") > -1; //判断是否Firefox浏览器
-//    var isSafari = userAgent.indexOf("Safari") > -1; //判断是否Safari浏览器
-    if (isIE) {
-        var IE5 = IE55 = IE6 = IE7 = IE8 = false;
-        var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
-        reIE.test(userAgent);
-        var fIEVersion = parseFloat(RegExp["$1"]);
-        if(fIEVersion<10){
-        	console.error("抱歉，当前编辑器不支持低版本ie！");
-        	return;
+    // 有些浏览器方法不支持，主动进行拓展
+    (function () {
+    	/*----------------浏览器校验低版本不绑定事件开始--------------------*/
+    	var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+    	var isOpera = userAgent.indexOf("Opera") > -1; //判断是否Opera浏览器
+    	var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera; //判断是否IE浏览器
+    	if (isIE) {
+    		var IE5 = IE55 = IE6 = IE7 = IE8 = false;
+    		var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+    		reIE.test(userAgent);
+    		var fIEVersion = parseFloat(RegExp["$1"]);
+    		if(fIEVersion<10){
+    			console.error("抱歉，当前编辑器不支持低版本ie！");
+    			return;
+    		}
+    	}
+        // ie8不支持trim方法
+        String.prototype.trim = function () {
+            return this.replace(/^\s+|\s+$/g, '');
         }
-    }
+        String.prototype.startWith = function (str) {
+            var reg = new RegExp("^" + str);
+            return reg.test(this);
+        }
+        String.prototype.endWith = function (str) {
+            var reg = new RegExp(str + "$");
+            return reg.test(this);
+        }
+
+        if (!("classList" in document.documentElement)) {
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype, 'classList',
+                {
+                    get: function () {
+                        var self = this;
+
+                        function update(fn) {
+                            return function (value) {
+                                var classes = self.className
+                                    .split(/\s+/g), index = util
+                                    .indexOf(classes, value);
+
+                                fn(classes, index, value);
+                                self.className = classes.join(" ");
+                            }
+                        }
+
+                        return {
+                            add: update(function (classes, index,
+                                                  value) {
+                                if (!~index)
+                                    classes.push(value);
+                            }),
+
+                            remove: update(function (classes, index) {
+                                if (~index)
+                                    classes.splice(index, 1);
+                            }),
+
+                            toggle: update(function (classes,
+                                                     index, value) {
+                                if (~index)
+                                    classes.splice(index, 1);
+                                else
+                                    classes.push(value);
+                            }),
+
+                            contains: function (value) {
+                                return !!~self.className.split(
+                                    /\s+/g).indexOf(value);
+                            },
+
+                            item: function (i) {
+                                return self.className.split(/\s+/g)[i]
+                                    || null;
+                            }
+                        };
+                    }
+                });
+        }
+        if (!("nextElementSibling" in document.documentElement)) {
+            //获取下一个元素节点
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype,
+                'nextElementSibling', {
+                    get: function () {
+                        if (this.nextElementSibling) {
+                            return this.nextElementSibling;
+                        } else {
+                            var node = this.nextSibling;
+                            while (node && node.nodeType !== 1) {
+                                node = node.nextibling;
+                            }
+                            return node;
+                        }
+                    }
+                })
+        }
+        if (!("previousElementSibling" in document.documentElement)) {
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype,
+                'previousElementSibling', {
+                    get: function () {
+                        if (this.previousElementSibling) {
+                            return this.previousElementSibling;
+                        } else {
+                            var el = this.previousSibling;
+                            while (el && el.nodeType !== 1) {
+                                el = el.previousSibling;
+                            }
+                            return el;
+                        }
+                    }
+                })
+        }
+        if (!("firstElementChild" in document.documentElement)) {
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype,
+                'firstElementChild', {
+                    get: function () {
+                        var el = this.firstChild;
+                        while (el && el.nodeType !== 1) {
+                            el = el.nextSibling;
+                        }
+                        return el;
+                    }
+                })
+        }
+        if (!("lastElementChild" in document.documentElement)) {
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype,
+                'lastElementChild', {
+                    get: function () {
+                        if (this.lastElementChild) {
+                            return this.lastElementChild;
+                        } else {
+                            var el = this.lastChild;
+                            while (el && el.nodeType !== 1) {
+                                el = el.previousSibling;
+                            }
+                            return el;
+                        }
+                    }
+                })
+        }
+        if (!("getElementById" in document.documentElement)) {
+            Object.defineProperty((window.HTMLElement ? HTMLElement : Element).prototype,
+                'getElementById', {
+                    get: function () {
+                        return function (idName) {
+                            var list = [];
+                            var tagNodes = this.getElementsByTagName("*");
+                            for (var i = 0; i < tagNodes.length; i++) {
+                                if (tagNodes[i].id == idName) {
+                                    list.push(tagNodes[i]);
+                                }
+                            }
+                            if (list.length == 1) {
+                                return list[0];
+                            } else if (list.length == 0) {
+                                return null;
+                            } else {
+                                return list;
+                            }
+                        }
+                    }
+                })
+        }
+    })();
+    
+    
+    
+    
     /*----------------浏览器校验低版本不绑定事件结束--------------------*/
 	/**
      * 构建步骤：
@@ -34,17 +186,6 @@
 			url : "/njqeditor/",// 项目路径
 			// 是否是ie浏览器的状态
 			ieFlag : window.getSelection ? true : false,
-			// 历史记录
-			njqHistory : {
-				// 最大历史记录缓存
-				maxLength : 12,
-				historyIndex : -1,
-				list : []
-			},
-			// 表格选区
-			rangeTable : {},
-			// 图片的选区
-			rangePic : {},
 			// 存放空字符，不同的浏览器所对应的空字符不一样
 			spaceNode : null,
 			// 外部标签
@@ -123,7 +264,17 @@
 			/*-------------------------------------配置使用场景为1的配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					
+					// 历史记录
+					njqHistory : {
+						// 最大历史记录缓存
+						maxLength : 12,
+						historyIndex : -1,
+						list : []
+					},
+					// 表格选区
+					rangeTable : {},
+					// 图片的选区
+					rangePic : {},
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/jsTool/upload",// 图片上传地址
@@ -189,7 +340,17 @@
 			/*-------------------------------------配置使用场景为2的配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					url : "/njqeditor/",// 项目路径
+					// 历史记录
+					njqHistory : {
+						// 最大历史记录缓存
+						maxLength : 12,
+						historyIndex : -1,
+						list : []
+					},
+					// 表格选区
+					rangeTable : {},
+					// 图片的选区
+					rangePic : {},
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/grab/editPicUp",// 图片上传地址
@@ -255,7 +416,17 @@
 			/*-------------------------------------配置使用场景为3的配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					url : "/njqeditor/",// 项目路径
+					// 历史记录
+					njqHistory : {
+						// 最大历史记录缓存
+						maxLength : 12,
+						historyIndex : -1,
+						list : []
+					},
+					// 表格选区
+					rangeTable : {},
+					// 图片的选区
+					rangePic : {},
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/grab/editPicUp",// 图片上传地址
@@ -321,7 +492,17 @@
 			/*-------------------------------------配置使用场景为3的配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					url : "/njqeditor/",// 项目路径
+					// 历史记录
+					njqHistory : {
+						// 最大历史记录缓存
+						maxLength : 12,
+						historyIndex : -1,
+						list : []
+					},
+					// 表格选区
+					rangeTable : {},
+					// 图片的选区
+					rangePic : {},
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/grab/editPicUp",// 图片上传地址
@@ -363,7 +544,17 @@
 			/*-------------------------------------不配置使用场景的默认配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					url : "/njqeditor/",// 项目路径
+					// 历史记录
+					njqHistory : {
+						// 最大历史记录缓存
+						maxLength : 12,
+						historyIndex : -1,
+						list : []
+					},
+					// 表格选区
+					rangeTable : {},
+					// 图片的选区
+					rangePic : {},
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/grab/editPicUp",// 图片上传地址
@@ -428,7 +619,7 @@
 		}
 	}
 	
-	function loadAllJs(njqEditor){
+	function loadAllJs(){
 		//加载配置的时候立即撑开div高度，避免一些特殊场景
 //		editorDiv.style.height=njqEditor.userConfig.initHeight+"px";
 		var loadPage = function() {
@@ -466,34 +657,27 @@
 		}
 		
 		//加载按钮配置
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_toolConfig.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_toolConfig.js", function() {
 			njqEditor.loadFlag[0]=true;
 		});
 		//加载工具类
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_util.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_util.js", function() {
 			njqEditor.loadFlag[1]=true;
 		});
 		//加载样式配置 
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_styleConfig.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_styleConfig.js", function() {
 			njqEditor.loadFlag[2]=true;
 		});
 		//加载模板
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_model.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_model.js", function() {
 			njqEditor.loadFlag[3]=true;
 		});
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_event.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_event.js", function() {
 			njqEditor.loadFlag[4]=true;
 		});
-		loadScript(njqEditor.userConfig.url+"js/njqEditor_bind_event.js", function() {
+		loadScript(njqEditor.sysConfig.url+"js/njqEditor_bind_event.js", function() {
 			njqEditor.loadFlag[5]=true;
 		});
-		
-		
-//		var unEvent=editorDiv.getAttribute("unEvent");
-		//当前加载是否需要事件
-//		if(!unEvent){
-//			loadPage();		
-//		}
 	}
 	
 	
@@ -504,12 +688,13 @@
 			var editorDiv = editorDivs[i];
 			njqEditor.editorNodes[i]={};
 			njqEditor.editorNodes[i].editorDiv=editorDiv;
+			njqEditor.editorNodes[i].prefix=editorDiv.getAttribute("prefix");
 //			加载自定义配置
 			loadEnv(njqEditor.editorNodes[i]);
 		}
 		njqEditor.loadFlag=new Array(6);
 		//加载前置js文件
-		loadAllJs(njqEditor.editorNodes[0]);
+		loadAllJs();
 		
 		
 		setTimeout(function () {
@@ -520,17 +705,110 @@
 				}
 			}
             if(flag){
-            	console.info("加载完成");
+            	for (var i = 0; i < njqEditor.editorNodes.length; i++) {
+            		packageEditor(njqEditor.editorNodes[i]);
+				}
             }
-        }, 0);
+        }, 200);
 	}
 	
 	
 	initEditor();
 	
-	function packageEditor(){
-		
+	function packageEditor(editorNode){
+		var util = njqEditor.util;
+		var text = editorNode.modelText;
+		var str = text.match(/id=".+?"/g);
+		for(var i=0;i<str.length;i++){
+			var idv = str[i].match(/".+?"/g)[0].replace(/"/g,"")
+			text = text.replace(str[i],"id=\""+editorNode.prefix+idv+"\"");
+		}
+		var div = document.createElement("div");
+		div.innerHTML = text;
+		var ed = div.firstChild;
+		var userConfig = editorNode.userConfig;
+		var editorDiv= editorNode.editorDiv;
+		// 根据配置设置是否隐藏
+		if (!userConfig.initShow) {
+			ed.style.display = "none";
+		}
+		var contextBody = util.getElementsByClassName(ed,
+				"context-background")[0];
+		if (userConfig.autoHeight) {
+			contextBody.style.height = "inherit";
+		} else {
+			// 设置编辑器高度
+			if (userConfig.initHeight) {
+				contextBody.style.height = userConfig.initHeight + "px";
+			}
+		}
+		// 设置是否显示字数统计
+		if (userConfig.wordCount.isShow) {
+			if (!userConfig.wordCount.top) {
+				var topNum = util.getElementsByClassName(ed,
+						"topNumCountArea")[0];
+				topNum.style.display = "none";
+			}
+			if (!userConfig.wordCount.bottom) {
+				var bottomNum = util.getElementsByClassName(ed,
+						"textNum")[0];
+				bottomNum.style.display = "none";
+			}
+		} else {
+			var bottomNum = util.getElementsByClassName(ed, "textNum")[0];
+			bottomNum.style.display = "none";
+			var topNum = util.getElementsByClassName(ed,
+					"topNumCountArea")[0];
+			topNum.style.display = "none";
+		}
+		util.insertBefore(ed,editorDiv);
+		userConfig.initText = editorDiv.innerHTML;
+		//添加隐藏参数域
+		var sdpd = document.createElement("div");
+		sdpd.style.display="none";
+		sdpd.id=njqEditor.sysConfig.ids.editorParamDiv;
+		var sendp= document.createElement("input");
+		sendp.value = editorDiv.getAttribute("pv");
+		sdpd.append(sendp);
+		//将隐藏域置于底部
+		ed.append(sdpd);
+		util.remove(editorDiv);
+		var scriptList = div.getElementsByTagName("script");
+		var fn, evalHtml;
+		for (var i = 0; i < scriptList.length; i++) {
+			if (scriptList[i].id) {
+				evalHtml = util.trim(scriptList[i].innerHTML);
+				if (window.execScript) {
+					window.execScript(evalHtml);
+				} else {
+					evalHtml = evalHtml.substr(0, evalHtml.length - 26);
+					fn = eval("(true&&" + evalHtml + ")");
+					fn(editorNode);
+				}
+			}
+		}
+		util.remove(div);
+		// 将所需要用到的节点引用封装到对象中避免每次都要getElementById来找
+		var idsNode = editorNode.idsNode = {};
+		var ids = njqEditor.sysConfig.ids;
+		for ( var editId in ids) {
+			idsNode[editId] = document.getElementById(editorNode.prefix+ids[editId]);
+		}
+		var unEvent=editorDiv.getAttribute("unEvent");
+		//当前加载是否需要事件
+		if(!unEvent){
+			//未加载完全不允许编辑
+			idsNode["editorContext"].setAttribute("contenteditable", false);
+			//绑定事件
+			njqEditor.eventfun(editorNode);
+			njqEditor.bindfun(editorNode);
+			//初始化内容
+			if(userConfig.initText!=null&&userConfig.initText!=""){
+				idsNode["editorContext"].innerHTML=userConfig.initText.replace(/^\s+|\s+$/gm, '').replace(/[\r\n\t]/g, "");			
+			}else{
+				idsNode["editorContext"].innerHTML="<div><br></div>";
+			}
+			njqEditor.eventListeners._init();
+		}
 	}
-	
-	
 })()

@@ -21,7 +21,7 @@
 	function loadBind(editorNode){
 		var util=njqEditor.util;
 		var tools=njqEditor.toolConfig.toolsNode;
-		var ids=njqEditor.sysConfig.editNode;
+		var ids=editorNode.idsNode;
 		var userConfig=editorNode.userConfig;
 		var btn,eventList,cnode,childNode;
 		for(var t in tools){
@@ -51,7 +51,7 @@
 		
 		if(util.indexOf(userConfig.useBtn,"njqEditor_upPic")>-1){
 			//特殊事件，单独自己去绑定
-			var put=document.getElementById("njqEditor_upPic").getElementsByTagName("input")[0];
+			var put=document.getElementById(editorNode.prefix+"njqEditor_upPic").getElementsByTagName("input")[0];
 			util.addCommonEventListener(put,"change","_fileChange",1);
     	}
 		

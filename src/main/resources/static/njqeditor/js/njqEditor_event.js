@@ -1,28 +1,28 @@
 (function () {
-    // 编辑器总对象
-    var njqEditor = window.njqEditor;
-    var sysConfig = njqEditor.sysConfig;
-    var userConfig = njqEditor.userConfig;
-    var tools = njqEditor.toolConfig.toolsNode,
-        toolsConfig = njqEditor.toolConfig.tools,
-        util = njqEditor.util,
-        constants = njqEditor.constants,
-        ieFlag = sysConfig.ieFlag,
-        njqHistory = sysConfig.njqHistory,
-        rangeTable = sysConfig.rangeTable,
-        rangePic = sysConfig.rangePic,
-        parentIncludeNode = sysConfig.parentIncludeNode,
-        singleNode = sysConfig.singleNode,
-        ignoreNode = sysConfig.ignoreNode,
-        resetRange = null,
-        ids = njqEditor.sysConfig.editNode;
-    // 存放一些中间变量，用于方法间的过渡
-    var tempVar = {};
-    // 上传图片缓存
-    var upPicArray = {};
-    // 触发事件区域
-    (function () {
-        // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器
+	function loadEvent(njqEditor){
+		// 编辑器总对象
+	    var njqEditor = window.njqEditor;
+	    var sysConfig = njqEditor.sysConfig;
+	    var userConfig = njqEditor.userConfig;
+	    var tools = njqEditor.toolConfig.toolsNode,
+	        toolsConfig = njqEditor.toolConfig.tools,
+	        util = njqEditor.util,
+	        constants = njqEditor.constants,
+	        ieFlag = sysConfig.ieFlag,
+	        njqHistory = sysConfig.njqHistory,
+	        rangeTable = sysConfig.rangeTable,
+	        rangePic = sysConfig.rangePic,
+	        parentIncludeNode = sysConfig.parentIncludeNode,
+	        singleNode = sysConfig.singleNode,
+	        ignoreNode = sysConfig.ignoreNode,
+	        resetRange = null,
+	        ids = njqEditor.sysConfig.editNode;
+	    // 存放一些中间变量，用于方法间的过渡
+	    var tempVar = {};
+	    // 上传图片缓存
+	    var upPicArray = {};
+	    
+	 // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器
         var editorNode = ids.editor;
         // 将经常要用到的几个节点单独提取出来，省的经常要进行全文寻找这个节点，获取编辑器文本区
         var editorContext = ids.editorContext;
@@ -7032,6 +7032,14 @@
         }
 
         var customEvent = njqEditor.customEvent;
-    })();
+	}
+	window.njqEditor.eventfun = loadEvent;
+//	loadEvent(njqEditor){
+//		// 编辑器总对象
+//	    var njqEditor = window.njqEditor;
+//    // 触发事件区域
+//    (function () {
+//        
+//    })();
 
 })();

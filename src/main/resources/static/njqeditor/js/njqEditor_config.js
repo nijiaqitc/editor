@@ -31,6 +31,7 @@
 	window.njqEditor = {
 		// 系统自带配置及全局变量初始化，强烈不建议修改
 		sysConfig : {
+			url : "/njqeditor/",// 项目路径
 			// 是否是ie浏览器的状态
 			ieFlag : window.getSelection ? true : false,
 			// 历史记录
@@ -122,7 +123,7 @@
 			/*-------------------------------------配置使用场景为1的配置-----------------------------------------------------*/
 			// 用户自定义配置
 			njqEditor.userConfig = {
-					url : "/njqeditor/",// 项目路径
+					
 					pic : {
 						enable:true,//是否允许上传
 						picSrc : "/jsTool/upload",// 图片上传地址
@@ -427,22 +428,22 @@
 		}
 	}
 	
-	function loadAllJs(){
+	function loadAllJs(njqEditor){
 		//加载配置的时候立即撑开div高度，避免一些特殊场景
 //		editorDiv.style.height=njqEditor.userConfig.initHeight+"px";
 		var loadPage = function() {
 			//加载按钮配置
-			loadScript(njqEditor.userConfig.url+"js/njqEditor_toolConfig.js", function() {
-				//加载工具类
-				loadScript(njqEditor.userConfig.url+"js/njqEditor_util.js", function() {
-					//加载样式配置 
-					loadScript(njqEditor.userConfig.url+"js/njqEditor_styleConfig.js", function() {
-						//加载模板
-						loadScript(njqEditor.userConfig.url+"js/njqEditor_model.js", function() {
-						});						
-					});
-				});
-			});
+//			loadScript(njqEditor.userConfig.url+"js/njqEditor_toolConfig.js", function() {
+//				//加载工具类
+//				loadScript(njqEditor.userConfig.url+"js/njqEditor_util.js", function() {
+//					//加载样式配置 
+//					loadScript(njqEditor.userConfig.url+"js/njqEditor_styleConfig.js", function() {
+//						//加载模板
+//						loadScript(njqEditor.userConfig.url+"js/njqEditor_model.js", function() {
+//						});						
+//					});
+//				});
+//			});
 		}
 		var loadScript = function(url, callback) {
 			var script = document.createElement("script");
@@ -464,11 +465,35 @@
 			document.getElementsByTagName("head")[0].appendChild(script);
 		}
 		
-		var unEvent=editorDiv.getAttribute("unEvent");
+		//加载按钮配置
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_toolConfig.js", function() {
+			njqEditor.loadFlag[0]=true;
+		});
+		//加载工具类
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_util.js", function() {
+			njqEditor.loadFlag[1]=true;
+		});
+		//加载样式配置 
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_styleConfig.js", function() {
+			njqEditor.loadFlag[2]=true;
+		});
+		//加载模板
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_model.js", function() {
+			njqEditor.loadFlag[3]=true;
+		});
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_event.js", function() {
+			njqEditor.loadFlag[4]=true;
+		});
+		loadScript(njqEditor.userConfig.url+"js/njqEditor_bind_event.js", function() {
+			njqEditor.loadFlag[5]=true;
+		});
+		
+		
+//		var unEvent=editorDiv.getAttribute("unEvent");
 		//当前加载是否需要事件
-		if(!unEvent){
-			loadPage();		
-		}
+//		if(!unEvent){
+//			loadPage();		
+//		}
 	}
 	
 	
@@ -482,12 +507,30 @@
 //			加载自定义配置
 			loadEnv(njqEditor.editorNodes[i]);
 		}
+		njqEditor.loadFlag=new Array(6);
 		//加载前置js文件
-		loadAllJs();
+		loadAllJs(njqEditor.editorNodes[0]);
+		
+		
+		setTimeout(function () {
+            var flag = true;
+            for (var i = 0; i < njqEditor.loadFlag.length; i++) {
+				if(!njqEditor.loadFlag[i]){
+					flag=false;
+				}
+			}
+            if(flag){
+            	console.info("加载完成");
+            }
+        }, 0);
 	}
 	
 	
+	initEditor();
+	
+	function packageEditor(){
+		
+	}
 	
 	
-
 })()

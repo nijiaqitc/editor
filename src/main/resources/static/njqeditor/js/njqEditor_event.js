@@ -45,10 +45,30 @@
         stMark.innerHTML = "[[";
         enMark.innerHTML = "]]";
 
+        var bindEvents = njqEditor.bindEventListeners = {
+        	 // 所有事件绑定执行方法
+            _totalBandEvent: function (e) {
+            	console.info("!!!--"+ids.editor.id);
+                //未初始化完成前不允许操作
+                if (!sysConfig.initFinshFlag) {
+                    return;
+                }
+                if (this.njqEvent.common) {
+                    try {
+                        allEvents[this.njqEvent.common].apply(this, [e]);
+                    } catch (e) {
+                        allEvents._recoverData();
+                        if (sysConfig.errorLog) {
+                            console.error("外层控制器捕获异常，选区进行了重置！", e);
+                        }
+                    }
+                }
+            }
+        }
         /**
          * 按钮绑定事件，类似于controller层
          */
-        var allEvents = njqEditor.eventListeners = {
+        var allEvents = editorConfig.eventListeners = {
             // 初始化
             _init: function () {
                 // 格式化文本区中的内容
@@ -70,7 +90,7 @@
                 var pas = util.createCustomNode("div");
                 //此节点主要用于存放粘贴的内容且不能隐藏，如果隐藏是无法粘贴进去
                 pas.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;left:-1000px;white-space:nowrap;";
-                pas.id = njqEditor.sysConfig.ids.editorPaste;
+                pas.id = sysConfig.ids.editorPaste;
                 ids.editorPaste = pas;
 
                 // 加载外部js时需要使用
@@ -104,28 +124,11 @@
                 function loadJsSuccess(){
                 	editorContext.setAttribute("contenteditable", true);
                     resetRange = util.initRange(editorContext);
-                    njqEditor.sysConfig.initFinshFlag = true;
-                    njqEditor.sysConfig.finishEvent();
+                    sysConfig.initFinshFlag = true;
+                    sysConfig.finishEvent();
                     service.resetBtnStatus();
                     allEvents._wordCountReckon();
                     service.loadClass();
-                }
-            },
-            // 所有事件绑定执行方法
-            _totalBandEvent: function (e) {
-                //未初始化完成前不允许操作
-                if (!njqEditor.sysConfig.initFinshFlag) {
-                    return;
-                }
-                if (this.njqEvent.common) {
-                    try {
-                        allEvents[this.njqEvent.common].apply(this, [e]);
-                    } catch (e) {
-                        allEvents._recoverData();
-                        if (sysConfig.errorLog) {
-                            console.error("外层控制器捕获异常，选区进行了重置！", e);
-                        }
-                    }
                 }
             },
             // 公共绑定的方法,所有按钮事件的唯一入口
@@ -176,6 +179,7 @@
             _commonDialogEventController: function (e) {
                 var dialog = util.findParentDialog(this);
                 var btn = ids.editorTool.getElementById(dialog.btnId);
+                console.info("!!!"+ids.editor.id);
                 try {
                     for (var index in this.njqEvent[e.type]) {
                         allEvents[this.njqEvent[e.type][index]].apply(this);
@@ -1402,7 +1406,7 @@
         /**
          * 业务逻辑处理层，类似于service层
          */
-        var service = njqEditor.serviceImpl = {
+        var service = editorConfig.serviceImpl = {
         	//重置id
         	resetId:function(oldId){
         		if(editorConfig.prefix){
@@ -3924,6 +3928,7 @@
              * 后退或者前进
              */
             getCache: function (flag) {
+            	console.info(ids)
                 if (flag) {
                     if ((njqHistory.historyIndex + 1) >= njqHistory.list.length) {
                         return false;
@@ -6639,7 +6644,9 @@
                     styles.hideDialog(temp);
                     node.defaultVaule = "16px";
                     node.valueNode = node.firstElementChild.firstElementChild;
+                    console.info("!!!yy"+ids.editor.id);
                     util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectFontSize", 2);
+                    console.info("---xx"+ids.editor.id)
                     loadJs(node.id, node.dlgId, "fontSize/fontSize.js", fun);
                 });
             },
@@ -7045,16 +7052,7 @@
             xmlhttp.open("POST", userConfig.pic.picSrc, true);
             xmlhttp.send(formData);
         }
-
         var customEvent = njqEditor.customEvent;
 	}
 	window.njqEditor.eventfun = loadEvent;
-//	loadEvent(njqEditor){
-//		// 编辑器总对象
-//	    var njqEditor = window.njqEditor;
-//    // 触发事件区域
-//    (function () {
-//        
-//    })();
-
 })();

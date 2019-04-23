@@ -821,7 +821,7 @@
                 obj.njqEvent["common"] = "_commonCustomEventController";
             }
             this.addEventListener(obj, eventType,
-                njqEditor.eventListeners["_totalBandEvent"]);
+            		njqEditor.bindEventListeners["_totalBandEvent"]);
         },
         /**
          * 事件绑定，不同浏览器绑定事件不一样 obj:事件对象 type:绑定事件名称 handle:绑定事件方法

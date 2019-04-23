@@ -808,7 +808,7 @@
 			}else{
 				idsNode["editorContext"].innerHTML="<div><br></div>";
 			}
-			njqEditor.eventListeners._init();
+			editorNode.eventListeners._init();
 		}
 	}
 })()

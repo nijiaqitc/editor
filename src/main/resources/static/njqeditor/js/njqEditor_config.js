@@ -307,6 +307,9 @@
 						isNeedTimes:true,//是否需要时间轴，不要是进行页面防并发
 						timestamp:"timestamp"//时间轴变量名
 					},
+					plug:{
+						enable:false
+					},
 					// 所使用的按钮
 					useBtn : [ "njqEditor_html", "njqEditor_save", "njqEditor_back",
 						"njqEditor_go", "njqEditor_clearAll",
@@ -381,6 +384,9 @@
 						cssName:"css",//保存样式的参数名
 						isNeedTimes:true,//是否需要时间轴，不要是进行页面防并发
 						timestamp:"timestamp"//时间轴变量名
+					},
+					plug:{
+						enable:false
 					},
 					// 所使用的按钮
 					useBtn : [ "njqEditor_html", "njqEditor_save", "njqEditor_back",
@@ -457,6 +463,9 @@
 						isNeedTimes:true,//是否需要时间轴，不要是进行页面防并发
 						timestamp:"timestamp"//时间轴变量名
 					},
+					plug:{
+						enable:false
+					},
 					// 所使用的按钮
 					useBtn : [ "njqEditor_html", "njqEditor_save", "njqEditor_back",
 						"njqEditor_go", "njqEditor_clearAll",
@@ -532,6 +541,12 @@
 						isNeedTimes:true,//是否需要时间轴，不要是进行页面防并发
 						timestamp:"timestamp"//时间轴变量名
 					},
+					plug:{
+						enable:true,
+						pre:function(node){
+							node.innerHTML=js_beautify(node.innerHTML,4," ");
+						}
+					},
 					// 所使用的按钮
 					useBtn : ["njqEditor_strong", "njqEditor_lean","njqEditor_clearDecode","njqEditor_dataCode","njqEditor_addHref" ]
 			}
@@ -582,6 +597,9 @@
 						cssName:"css",//保存样式的参数名
 						isNeedTimes:true,//是否需要时间轴，不要是进行页面防并发
 						timestamp:"timestamp"//时间轴变量名
+					},
+					plug:{
+						enable:false
 					},
 					// 所使用的按钮
 					useBtn : [ "njqEditor_html", "njqEditor_save", "njqEditor_back",

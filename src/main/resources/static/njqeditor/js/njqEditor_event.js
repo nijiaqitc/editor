@@ -3373,7 +3373,7 @@
                         return service.delUnNeedNode(node);
                     }
                     if (node.id) {
-                        if (node.id.startWith("njqEditor")) {
+                        if (node.id.contains("njqEditor")) {
                             return;
                         }
                         node.removeAttribute("id");
@@ -3451,7 +3451,7 @@
                         return util.removeNode(node);
                     }
                     if (node.id) {
-                        if (node.id.startWith("njqEditor")) {
+                        if (node.id.contains("njqEditor")) {
                             return;
                         }
                         node.removeAttribute("id");
@@ -3921,7 +3921,6 @@
                     && editorContext.lastChild.firstChild.tagName == constants.BR)) {
                     editorContext.appendChild(util.createEmptyNode(constants.DIV));
                 }
-
                 return;
             },
             //图片加点击事件

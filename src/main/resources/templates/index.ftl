@@ -2,6 +2,7 @@
 <head>
 
 <link href="/njqeditor/css/njqEditor_styleNine.css"  rel="stylesheet">
+
 </head>
 <body>
 	<div style="width:400px;height:300px;">
@@ -24,6 +25,7 @@
 		<div prefix="abc3" name="njqEditorDiv" modelStyle="styleNine" env="4" ></div>
 	</div>
 	
+	<script type="text/javascript" src="/jsDecode.js"></script>
 	<script type="text/javascript" src="/njqeditor/js/njqEditor_config.js"></script>
 </body>
 </html>

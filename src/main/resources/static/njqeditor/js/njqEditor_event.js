@@ -63,6 +63,158 @@
                 }
             }
         }
+        // 暴露在外的api接口
+        var api = editorConfig.api = {
+            // 获取编辑器内容
+            getContent: function () {
+                return editorContext.innerHTML;
+            },
+            // 写入内容
+            setContent: function (text) {
+                if (text == constants.EMPTY || text == null) {
+                    editorContext.innerHTML = "<div><br></div>";
+                    return;
+                }
+                editorContext.innerHTML = "<div>" + text + "</div>";
+                service.decodeService();
+                service.sethistroy(resetRange);
+            },
+            // 获得纯文本
+            getContentTxt: function () {
+                return service.getContentTxt(editorContext.firstChild, editorContext);
+            },
+            // 获得带格式的纯文本
+            getPlainTxt: function () {
+                return service.getPlainTxt();
+            },
+            // 是否有文章内容
+            hasText: function() {
+            	if(this.getContentTxt().trim() == ""){
+            		return false;
+            	}else{
+            		return true;
+            	}
+            },
+            // 判断是否有内容
+            hasContent: function () {
+                if (editorContext.childNodes.length == 1 && editorContext.firstChild.tagName == constants.DIV) {
+                    if (editorContext.firstElementChild.childNodes.length == 1 && editorContext.firstElementChild.firstElementChild.tagName == constants.BR) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            // 使编辑器获得焦点
+            setFocus: function () {
+                editorContext.focus();
+            },
+            // 获得当前选中的文本
+            getText: function () {
+                var div = util.createEmptyNode(constants.DIV);
+                if (resetRange.cloneContents) {
+                    div.appendChild(resetRange.cloneContents());
+                    return service.getContentTxt(div.firstChild, div);
+                } else {
+                    return constants.EMPTY;
+                }
+            },
+            // 获取准备保存的内容
+            getSaveContext: function () {
+                if (userConfig.saveWord.saveType == 2) {
+                    var array = service.separateData();
+                    return array;
+                } else {
+                    return editorContext.innerHTML;
+                }
+            },
+            // 组合内容
+            assembleContext: function (html, css) {
+                return service.assembleContext(html, css);
+            },
+            // 插入给定的内容
+            insertHtml: function (text) {
+                var div = util.createEmptyNode(constants.DIV);
+                div.innerHTML = text;
+                if (editorContext.lastChild.childNodes.length == 1 &&
+                    util.isBrLabel(editorContext.lastChild.firstChild)) {
+                    util.insertBefore(div, editorContext.lastChild);
+                } else {
+                    editorContext.appendChild(div);
+                }
+                service.decodeService();
+                service.sethistroy(resetRange);
+            },
+            // 可以编辑
+            setEnabled: function () {
+                service.enableUsedEdit();
+            },
+            // 不可编辑
+            setDisabled: function () {
+                service.unUsedEdit();
+            },
+            // 隐藏编辑器
+            setHide: function () {
+                ids.editor.style.display = "none";
+            },
+            // 显示编辑器
+            setShow: function () {
+                ids.editor.style.display = "block";
+            },
+            // 设置编辑器的高度
+            setHeight: function (height) {
+                if (typeof(height) == "number") {
+                    ids.editorBody.style.height = height + "px";
+                }
+            },
+            // 设置标题
+            setTitle: function (setValue) {
+                var title = ids.editorNameValue;
+                if (title) {
+                    title.innerHTML = setValue;
+                }
+            },
+            // 设置标题序号
+            setTitleNum: function (setValue) {
+                var num = ids.editorNumValue;
+                if (num) {
+                    num.innerHTML = setValue;
+                }
+            },
+            // 获取标题
+            getTitle: function () {
+                var title = ids.editorNameValue;
+                if (title) {
+                    return title.innerHTML;
+                }
+            },
+            // 获取标题序号
+            getTitleNum: function () {
+                var num = ids.editorNumValue;
+                if (num) {
+                    return num.innerHTML;
+                }
+            },
+            // 上传图片到服务器，并替换文本中对应的图片地址
+            upPicToServer: function () {
+                upPicToServer();
+            },
+            // 保存内容,str为要附带上传的内容，fun为上传成功后执行的方法
+            saveData: function (str, fn) {
+                if (userConfig.pic.upType == 3) {
+                    upContextToServer(str, fn);
+                } else {
+                    upPicToServer(upContextToServer, str, fn);
+                }
+            },
+            //将指定按钮置为不可用
+            btnSetFalse: function (btnId) {
+                tools[btn].handFalse = true;
+            },
+            //将指定按钮置为可用
+            btnSetTrue: function (btnId) {
+                tools[btn].handFalse = false;
+            }
+        };
         /**
          * 按钮绑定事件，类似于controller层
          */
@@ -1844,8 +1996,13 @@
                         endOffset = range.endOffset;
                     }
                 } else {
-                    stText = endText = range.startContainer;
-                    stOffset = endOffset = range.startOffset;
+                	if(range.startContainer.nodeType==3){
+                		stText = endText = range.startContainer;
+                		stOffset = endOffset = range.startOffset;                		
+                	}else{
+                		stText = endText = range.startContainer.childNodes[range.startOffset-1];
+                		stOffset = endOffset = endText.length; 
+                	}
                 }
                 var parentArray = util.getOutNode(range);
                 util.forListNode(parentArray[0], parentArray[parentArray.length - 1], this.clearDecodefun(), 1);
@@ -6567,7 +6724,7 @@
                 var baseSet = this.baseSet;
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node, 1);
-                    styles.showDialog(temp);
+                    styles.hideDialog(temp);
                     temp.unclose = true;
                     closeDialog(temp);
                     util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_addHref", 2);
@@ -6870,7 +7027,7 @@
                     fun(text);
                 }
             }
-            xmlhttp.open("GET", window.njqEditor.sysConfig.url + url, true);
+            xmlhttp.open("GET", njqEditor.sysConfig.url + url, true);
             xmlhttp.send();
         }
         // html中的js
@@ -6884,7 +7041,7 @@
                 njqEditor.dialogIds[key] = [(id + "&" + editorConfig.prefix+dlgId)];
             }
             var hm = util.createCustomNode("script");
-            hm.src = window.njqEditor.sysConfig.url + "dialog/" + src;
+            hm.src = njqEditor.sysConfig.url + "dialog/" + src;
             util.getElementsByTagName(document, 'head')[0].appendChild(hm);
             if (fun) {
                 fun();
@@ -7046,5 +7203,5 @@
         }
         var customEvent = njqEditor.customEvent;
 	}
-	window.njqEditor.eventfun = loadEvent;
+	njqEditor.eventfun = loadEvent;
 })();

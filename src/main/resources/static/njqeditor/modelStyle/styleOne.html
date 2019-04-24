@@ -159,7 +159,7 @@
 			        for(var attr in object){
 			            node[attr]=object[attr];
 			        }
-			        node.id=editorNode.name;
+			        node.id=editorNode.prefix+name;
 			        node.title=node.title;
 			        toolsNode[name]=node;
 			        if(!node.isEnable){

@@ -728,21 +728,19 @@
 		// 设置是否显示字数统计
 		if (userConfig.wordCount.isShow) {
 			if (!userConfig.wordCount.top) {
-				var topNum = util.getElementsByClassName(ed,
-						"topNumCountArea")[0];
-				topNum.style.display = "none";
+				var topNum = util.getElementsByClassName(ed,"topNumCountArea")[0];
+				topNum.nextElementSibling.style.borderRight="0px";
+				topNum.remove();
 			}
 			if (!userConfig.wordCount.bottom) {
-				var bottomNum = util.getElementsByClassName(ed,
-						"textNum")[0];
-				bottomNum.style.display = "none";
+				util.getElementsByClassName(ed,"textNum")[0].remove();
 			}
 		} else {
-			var bottomNum = util.getElementsByClassName(ed, "textNum")[0];
-			bottomNum.style.display = "none";
+			util.getElementsByClassName(ed, "textNum")[0].remove();
 			var topNum = util.getElementsByClassName(ed,
 					"topNumCountArea")[0];
-			topNum.style.display = "none";
+			topNum.nextElementSibling.style.borderRight="0px";
+			topNum.remove();
 		}
 		util.insertBefore(ed,editorDiv);
 		userConfig.initText = editorDiv.innerHTML;

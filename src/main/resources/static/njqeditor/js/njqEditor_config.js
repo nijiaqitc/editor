@@ -687,7 +687,8 @@
 			var editorDiv = editorDivs[i];
 			njqEditor.editorNodes[i]={};
 			njqEditor.editorNodes[i].editorDiv=editorDiv;
-			njqEditor.editorNodes[i].prefix=editorDiv.getAttribute("prefix");
+			var prefix = editorDiv.getAttribute("prefix");
+			njqEditor.editorNodes[i].prefix=(prefix==null?"":prefix)
 			//加载自定义配置
 			loadEnv(njqEditor.editorNodes[i]);
 			editorDivs[i].style.height=njqEditor.editorNodes[i].userConfig.initHeight+"px";

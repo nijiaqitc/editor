@@ -286,7 +286,6 @@
 					parsePicType : 1,// 粘贴图片的方式，1:抓取并上传到服务器，2:不上传图片，使用网络地址
 					parseTextType:1,//粘贴文本方式，1：带格式粘贴  2：无格式粘贴
 					initContent : "",// 默认编辑器初始文本，如果不需要，直接设置为""即可
-					indentValue : "24px",// 段落缩进位数
 					wordCount : {
 						isShow : true,// 是否使用计算字数功能 true：是 ，false：不展示
 						top : true,// 是否展示上部的计算字数块，前提是isShow为true， true：展示上部的计数块 false 不展示上部的计数块
@@ -362,7 +361,6 @@
 					parsePicType : 1,// 粘贴图片的方式，1:抓取并上传到服务器，2:不上传图片，使用网络地址
 					parseTextType:1,//粘贴文本方式，1：带格式粘贴  2：无格式粘贴
 					initContent : "",// 默认编辑器初始文本，如果不需要，直接设置为""即可
-					indentValue : "24px",// 段落缩进位数
 					wordCount : {
 						isShow : true,// 是否使用计算字数功能 true：是 ，false：不展示
 						top : true,// 是否展示上部的计算字数块，前提是isShow为true， true：展示上部的计数块 false 不展示上部的计数块
@@ -438,7 +436,6 @@
 					parsePicType : 1,// 粘贴图片的方式，1:抓取并上传到服务器，2:不上传图片，使用网络地址
 					parseTextType:1,//粘贴文本方式，1：带格式粘贴  2：无格式粘贴
 					initContent : "",// 默认编辑器初始文本，如果不需要，直接设置为""即可
-					indentValue : "24px",// 段落缩进位数
 					wordCount : {
 						isShow : true,// 是否使用计算字数功能 true：是 ，false：不展示
 						top : true,// 是否展示上部的计算字数块，前提是isShow为true， true：展示上部的计数块 false 不展示上部的计数块
@@ -514,7 +511,6 @@
 					parsePicType : 1,// 粘贴图片的方式，1:抓取并上传到服务器，2:不上传图片，使用网络地址
 					parseTextType:2,//粘贴文本方式，1：带格式粘贴  2：无格式粘贴
 					initContent : "",// 默认编辑器初始文本，如果不需要，直接设置为""即可
-					indentValue : "24px",// 段落缩进位数
 					wordCount : {
 						isShow : false,// 是否使用计算字数功能 true：是 ，false：不展示
 						top : true,// 是否展示上部的计算字数块，前提是isShow为true， true：展示上部的计数块 false 不展示上部的计数块
@@ -566,7 +562,6 @@
 					parsePicType : 1,// 粘贴图片的方式，1:抓取并上传到服务器，2:不上传图片，使用网络地址
 					parseTextType:1,//粘贴文本方式，1：带格式粘贴  2：无格式粘贴
 					initContent : "",// 默认编辑器初始文本，如果不需要，直接设置为""即可
-					indentValue : "24px",// 段落缩进位数
 					wordCount : {
 						isShow : true,// 是否使用计算字数功能 true：是 ，false：不展示
 						top : true,// 是否展示上部的计算字数块，前提是isShow为true， true：展示上部的计数块 false 不展示上部的计数块
@@ -622,20 +617,6 @@
 	function loadAllJs(){
 		//加载配置的时候立即撑开div高度，避免一些特殊场景
 //		editorDiv.style.height=njqEditor.userConfig.initHeight+"px";
-		var loadPage = function() {
-			//加载按钮配置
-//			loadScript(njqEditor.userConfig.url+"js/njqEditor_toolConfig.js", function() {
-//				//加载工具类
-//				loadScript(njqEditor.userConfig.url+"js/njqEditor_util.js", function() {
-//					//加载样式配置 
-//					loadScript(njqEditor.userConfig.url+"js/njqEditor_styleConfig.js", function() {
-//						//加载模板
-//						loadScript(njqEditor.userConfig.url+"js/njqEditor_model.js", function() {
-//						});						
-//					});
-//				});
-//			});
-		}
 		var loadScript = function(url, callback) {
 			var script = document.createElement("script");
 			script.type = "text/javaScript";
@@ -680,7 +661,9 @@
 		});
 	}
 	
-	
+	/**
+	 * 初始化编辑器
+	 */
 	function initEditor(){
 		var editorDivs = njqEditor.editorDivs = document.getElementsByName(njqEditor.sysConfig.ids.editorDiv);
 		njqEditor.editorNodes=new Array();
@@ -689,16 +672,16 @@
 			njqEditor.editorNodes[i]={};
 			njqEditor.editorNodes[i].editorDiv=editorDiv;
 			njqEditor.editorNodes[i].prefix=editorDiv.getAttribute("prefix");
-//			加载自定义配置
+			//加载自定义配置
 			loadEnv(njqEditor.editorNodes[i]);
 		}
 		njqEditor.loadFlag=new Array(6);
 		//加载前置js文件
 		loadAllJs();
 		
-		
 		setTimeout(function () {
             var flag = true;
+            //做一个栏栅，等所有配置加载完成后才开始组装
             for (var i = 0; i < njqEditor.loadFlag.length; i++) {
 				if(!njqEditor.loadFlag[i]){
 					flag=false;
@@ -712,9 +695,9 @@
         }, 200);
 	}
 	
-	
-	initEditor();
-	
+	/**
+	 * 封装生成编辑器
+	 */
 	function packageEditor(editorNode){
 		var util = njqEditor.util;
 		var text = editorNode.modelText;
@@ -808,7 +791,9 @@
 			}else{
 				idsNode["editorContext"].innerHTML="<div><br></div>";
 			}
-			editorNode.eventListeners._init();
+			njqEditor.eventListeners._init();
 		}
 	}
+	
+	initEditor();
 })()

@@ -777,7 +777,7 @@
          * commonType：绑定通用类 otobj：执行时的对象，比如 按了这个按钮，另一个控件出现反应
          * otevent：自定义事件，并非在event里面设置好的
          */
-        addCommonEventListener: function (obj, eventType, specalHandle,
+        addCommonEventListener: function (commonEvent,obj, eventType, specalHandle,
                                           commonType, otobj, otevent) {
             if (!obj.njqEvent) {
                 obj.njqEvent = {};
@@ -820,8 +820,7 @@
                 // 执行自定义方法
                 obj.njqEvent["common"] = "_commonCustomEventController";
             }
-            this.addEventListener(obj, eventType,
-            		njqEditor.bindEventListeners["_totalBandEvent"]);
+            this.addEventListener(obj, eventType,commonEvent["_totalBandEvent"]);
         },
         /**
          * 事件绑定，不同浏览器绑定事件不一样 obj:事件对象 type:绑定事件名称 handle:绑定事件方法

@@ -34,7 +34,6 @@
          * countTimer:统计字数 initTimer:重置按钮背景
          */
         var saveSceneTimer, countTimer, initTimer;
-        var makeDialog = editorConfig.makeDialog;
         var dialog = njqEditor.initDialog;
         var stMark = util.createCustomNode(constants.BOOKMARK);
         stMark.checkNext = true;
@@ -45,10 +44,9 @@
         stMark.innerHTML = "[[";
         enMark.innerHTML = "]]";
 
-        var bindEvents = njqEditor.bindEventListeners = {
+        var bindEvents = editorConfig.bindEventListeners = {
         	 // 所有事件绑定执行方法
             _totalBandEvent: function (e) {
-            	console.info("!!!--"+ids.editor.id);
                 //未初始化完成前不允许操作
                 if (!sysConfig.initFinshFlag) {
                     return;
@@ -68,7 +66,7 @@
         /**
          * 按钮绑定事件，类似于controller层
          */
-        var allEvents = editorConfig.eventListeners = {
+        var allEvents = njqEditor.eventListeners = {
             // 初始化
             _init: function () {
                 // 格式化文本区中的内容
@@ -95,7 +93,6 @@
 
                 // 加载外部js时需要使用
                 njqEditor.dialogIds = {};
-                var makeDialog = editorConfig.makeDialog;
                 var btn;
                 var waitDialog = [];
                 for (var tool in tools) {
@@ -179,7 +176,6 @@
             _commonDialogEventController: function (e) {
                 var dialog = util.findParentDialog(this);
                 var btn = ids.editorTool.getElementById(dialog.btnId);
-                console.info("!!!"+ids.editor.id);
                 try {
                     for (var index in this.njqEvent[e.type]) {
                         allEvents[this.njqEvent[e.type][index]].apply(this);
@@ -234,7 +230,7 @@
             _commonDocEventController: function (e) {
                 try {
                     for (var index in this.njqEvent[e.type]) {
-                        allEvents[document.njqEvent[e.type][index]].apply(this, [e]);
+                        allEvents[ids.editor.njqEvent[e.type][index]].apply(this, [e]);
                     }
                 } catch (e) {
                     if (sysConfig.errorLog) {
@@ -1013,7 +1009,7 @@
                 var range = service.rangeAreaDele(service.getRange());
                 var img = util.createCustomNode(constants.IMG);
                 img.src = this.getpic;
-                util.addCommonEventListener(img, "click", "_seleImg", 5);
+                util.addCommonEventListener(editorConfig.bindEventListeners,img, "click", "_seleImg", 5);
                 service.insertNode(range, img);
                 service.setRangeAfter(img);
             },
@@ -1152,7 +1148,7 @@
                     rangeTable.isDown = true;
                     rangeTable.table = util.getSpecalParentNode(constants.TABLE, tdnode);
                     service.getTableInfo(tdnode);
-                    util.addCommonEventListener(editorContext, "mouseover", "_tableMouseOver", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,editorContext, "mouseover", "_tableMouseOver", 5);
                 } else {
                     if (!rangeTable.empty) {
                         service.resetTable();
@@ -1406,7 +1402,7 @@
         /**
          * 业务逻辑处理层，类似于service层
          */
-        var service = editorConfig.serviceImpl = {
+        var service = njqEditor.serviceImpl = {
         	//重置id
         	resetId:function(oldId){
         		if(editorConfig.prefix){
@@ -2454,7 +2450,7 @@
                         img.width = userConfig.pic.maxWidth;
                     }
                 }
-                util.addCommonEventListener(img, "click", "_seleImg", 5);
+                util.addCommonEventListener(editorConfig.bindEventListeners,img, "click", "_seleImg", 5);
                 if (!styles.checkIsHide(ids.picSele)) {
                     styles.hideStyleNode(ids.picSele);
                     range.setStartBefore(ids.picSele.bandNode);
@@ -2488,7 +2484,7 @@
                     ids.picSele.bandNode.remove();
                 }
                 for (var i = 0; imgs.length > 0;) {
-                    util.addCommonEventListener(imgs[i], "click", "_seleImg", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,imgs[i], "click", "_seleImg", 5);
                     timg = imgs[i];
                     this.insertNode(range, timg);
                     timg.style.width = timg.dataWidth + "px";
@@ -3439,7 +3435,7 @@
             dealInnerImgs: function () {
                 var imgs = util.getElementsByTagName(editorContext, "img");
                 for (var i = 0; i < imgs.length; i++) {
-                    util.addCommonEventListener(imgs[i], "click", "_seleImg", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,imgs[i], "click", "_seleImg", 5);
                 }
                 if (userConfig.pic.upType == 2) {
                     upPicToServer();
@@ -3774,7 +3770,7 @@
             //图片加点击事件
             decodeDealImg: function (imgs) {
                 for (var i = 0; i < imgs.length; i++) {
-                    util.addCommonEventListener(imgs[i], "click", "_seleImg", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,imgs[i], "click", "_seleImg", 5);
                 }
                 if (userConfig.pic.upType == 2) {
                     upPicToServer();
@@ -3928,7 +3924,6 @@
              * 后退或者前进
              */
             getCache: function (flag) {
-            	console.info(ids)
                 if (flag) {
                     if ((njqHistory.historyIndex + 1) >= njqHistory.list.length) {
                         return false;
@@ -4546,9 +4541,8 @@
                 }
                 var parent = util.getOutParentNode(node);
                 if (!parent) {
-//		    		setValue=btn.defaultVaule;
-//	    			return;
-                    console.info(1111)
+		    		setValue=btn.defaultVaule;
+	    			return;
                 }
                 var innerHtml = btn.bindAttr[parent.tagName];
                 var setValue;
@@ -6533,7 +6527,7 @@
         };
         var dlgs = ids.editorDlgDiv;
         // 构建弹框
-        var makeDialog = editorConfig.makeDialog = {
+        var makeDialog = njqEditor.makeDialog = {
             // 弹框基本初始化
             baseSet: function (text, node, isCenter) {
                 var temp = util.createCustomNode(constants.DIV), top, left;
@@ -6551,8 +6545,8 @@
                     left = node.offsetLeft + 4;
                     styles.setDialogOffset(temp, top, left);
                 }
-                util.addCommonEventListener(temp, "mouseup", "_stopEvent", 5);
-                util.addCommonEventListener(temp, "mousedown", "_stopEvent", 5);
+                util.addCommonEventListener(editorConfig.bindEventListeners,temp, "mouseup", "_stopEvent", 5);
+                util.addCommonEventListener(editorConfig.bindEventListeners,temp, "mousedown", "_stopEvent", 5);
                 return temp;
             },
             // 设置标题的弹框
@@ -6563,7 +6557,7 @@
                     styles.hideDialog(temp);
                     node.defaultVaule = "段落";
                     node.valueNode = node.firstElementChild.firstElementChild;
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectType", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectType", 2);
                     loadJs(node.id, node.dlgId, "fontTitle/fontTitle.js", fun);
 
                 });
@@ -6576,7 +6570,7 @@
                     styles.showDialog(temp);
                     temp.unclose = true;
                     closeDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_addHref", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_addHref", 2);
                     loadJs(node.id, node.dlgId, "ahref/ahref.js", fun);
                 });
             },
@@ -6600,7 +6594,7 @@
                     styles.hideDialog(temp);
                     node.defaultVaule = "特殊样式";
                     node.valueNode = node.firstElementChild.firstElementChild;
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectCustom", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectCustom", 2);
                     loadJs(node.id, node.dlgId, "customStyle/customStyle.js", fun);
                 });
             },
@@ -6610,7 +6604,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.hideDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_setFontColor", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_setFontColor", 2);
                     loadJs(node.id, node.dlgId, "fontColor/fontColor.js", fun);
                 });
             },
@@ -6620,7 +6614,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.hideDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_setBackGroundColor", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_setBackGroundColor", 2);
                     loadJs(node.id, node.dlgId, "fontColor/fontColor.js", fun);
                 });
             },
@@ -6632,7 +6626,7 @@
                     styles.hideDialog(temp);
                     node.defaultVaule = "arial";
                     node.valueNode = node.firstElementChild.firstElementChild;
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectFontType", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectFontType", 2);
                     loadJs(node.id, node.dlgId, "fontType/fontType.js", fun);
                 });
             },
@@ -6644,9 +6638,7 @@
                     styles.hideDialog(temp);
                     node.defaultVaule = "16px";
                     node.valueNode = node.firstElementChild.firstElementChild;
-                    console.info("!!!yy"+ids.editor.id);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectFontSize", 2);
-                    console.info("---xx"+ids.editor.id)
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectFontSize", 2);
                     loadJs(node.id, node.dlgId, "fontSize/fontSize.js", fun);
                 });
             },
@@ -6656,7 +6648,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.showDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectOrderList", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectOrderList", 2);
                     loadJs(node.id, node.dlgId, "orderList/orderList.js", fun);
                 });
             },
@@ -6666,7 +6658,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.showDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectunList", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_selectunList", 2);
                     loadJs(node.id, node.dlgId, "unList/unList.js", fun);
                 });
             },
@@ -6676,7 +6668,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.hideDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_beforeHeight", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_beforeHeight", 2);
                     loadJs(node.id, node.dlgId, "beforeHeight/beforeHeight.js", fun);
                 });
             },
@@ -6686,7 +6678,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.hideDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_afterHeight", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_afterHeight", 2);
                     loadJs(node.id, node.dlgId, "beforeHeight/beforeHeight.js", fun);
                 });
             },
@@ -6696,7 +6688,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.hideDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_lineHeight", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_lineHeight", 2);
                     loadJs(node.id, node.dlgId, "lineHeight/lineHeight.js", fun);
                 });
             },
@@ -6739,10 +6731,10 @@
                     for (var i = 0; i < sizeList.length; i++) {
                         childNode = sizeList[i];
                         childNode.index = i;
-                        util.addCommonEventListener(childNode, "mousedown", "_picMouseDown", 5);
-                        util.addCommonEventListener(childNode, "mouseup", "_mouseUp", 5);
+                        util.addCommonEventListener(editorConfig.bindEventListeners,childNode, "mousedown", "_picMouseDown", 5);
+                        util.addCommonEventListener(editorConfig.bindEventListeners,childNode, "mouseup", "_mouseUp", 5);
                     }
-                    util.addCommonEventListener(temp, "mouseup", "_mouseUp", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,temp, "mouseup", "_mouseUp", 5);
                 });
             },
             // 显示源代码
@@ -6779,9 +6771,9 @@
                     }
                     util.getElementsByClassName(editorNode, "codeCenterLeft")[0].innerHTML = leftDiv;
                     util.getElementsByClassName(editorNode, "codeCenterRight")[0].innerHTML = rightDiv;
-                    util.addCommonEventListener(editNode, "keyup", "_resetNum", 5);
-                    util.addCommonEventListener(editNode, "keydown", "_resetRangePlace", 5);
-                    util.addCommonEventListener(editNode, "paste", "_htmlPaste", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,editNode, "keyup", "_resetNum", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,editNode, "keydown", "_resetRangePlace", 5);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,editNode, "paste", "_htmlPaste", 5);
                 });
             },
             // 预览文档弹框
@@ -6801,7 +6793,7 @@
                         dlgs.appendChild(temp);
                         ids.editorViewBtn = temp;
                         ids.editorViewContext = util.getElementsByClassName(temp, "partOne")[0];
-                        util.addCommonEventListener(util.getElementsByClassName(temp, "topdiv")[0], "dblclick", "_closeViewDoc", 5);
+                        util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "topdiv")[0], "dblclick", "_closeViewDoc", 5);
                     });
                 }
             },
@@ -6813,7 +6805,7 @@
                     styles.showDialog(temp);
                     temp.unclose = true;
                     closeDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_useModel", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_useModel", 2);
                     loadJs(node.id, node.dlgId, "model/model.js", fun);
                 });
             },
@@ -6823,7 +6815,7 @@
                 loadPage(node.dlgUrl, function (text) {
                     var temp = baseSet(text, node);
                     styles.showDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_createTable", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_createTable", 2);
                     loadJs(node.id, node.dlgId, "table/table.js", fun);
                 })
             },
@@ -6837,7 +6829,7 @@
                     styles.showDialog(temp);
                     temp.unclose = true;
                     closeDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_expression", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_expression", 2);
                     loadJs(node.id, node.dlgId, "emotion/emotion.js", fun);
                 });
             },
@@ -6849,7 +6841,7 @@
                     styles.showDialog(temp);
                     temp.unclose = true;
                     closeDialog(temp);
-                    util.addCommonEventListener(util.getElementsByClassName(temp, "dialogValue")[0], "click", "_insertPics", 2);
+                    util.addCommonEventListener(editorConfig.bindEventListeners,util.getElementsByClassName(temp, "dialogValue")[0], "click", "_insertPics", 2);
                     loadJs(node.id, node.dlgId, "morePics/morePics.js", fun);
                 });
             }
@@ -6858,7 +6850,7 @@
         var closeDialog = function (dialog) {
             var closeBtns = util.getElementsByClassName(dialog, "closeDialog");
             for (var i = 0; i < closeBtns.length; i++) {
-                util.addCommonEventListener(closeBtns[i], "click", "_commonClose", 6, dialog, dialog.hideFun);
+                util.addCommonEventListener(editorConfig.bindEventListeners,closeBtns[i], "click", "_commonClose", 6, dialog, dialog.hideFun);
             }
         }
         // 加载html页面

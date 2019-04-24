@@ -183,7 +183,7 @@
 	window.njqEditor = {
 		// 系统自带配置及全局变量初始化，强烈不建议修改
 		sysConfig : {
-			url : "/njqeditor/",// 项目路径
+			url : "/static/jsTool/njqeditor/",// 项目路径
 			// 是否是ie浏览器的状态
 			ieFlag : window.getSelection ? true : false,
 			// 存放空字符，不同的浏览器所对应的空字符不一样
@@ -633,8 +633,6 @@
 	}
 	
 	function loadAllJs(){
-		//加载配置的时候立即撑开div高度，避免一些特殊场景
-//		editorDiv.style.height=njqEditor.userConfig.initHeight+"px";
 		var loadScript = function(url, callback) {
 			var script = document.createElement("script");
 			script.type = "text/javaScript";
@@ -692,6 +690,7 @@
 			njqEditor.editorNodes[i].prefix=editorDiv.getAttribute("prefix");
 			//加载自定义配置
 			loadEnv(njqEditor.editorNodes[i]);
+			editorDivs[i].style.height=njqEditor.editorNodes[i].userConfig.initHeight+"px";
 		}
 		njqEditor.loadFlag=new Array(6);
 		//加载前置js文件
@@ -709,6 +708,9 @@
             	for (var i = 0; i < njqEditor.editorNodes.length; i++) {
             		packageEditor(njqEditor.editorNodes[i]);
 				}
+            	if(njqEditor.editorNodes.length == 1){
+            		window.njq = njqEditor.editorNodes[0].api;
+            	}
             }
         }, 200);
 	}

@@ -3373,7 +3373,7 @@
                         return service.delUnNeedNode(node);
                     }
                     if (node.id) {
-                        if (node.id.contains("njqEditor")) {
+                        if (node.id.indexOf("njqEditor")>-1) {
                             return;
                         }
                         node.removeAttribute("id");
@@ -3451,7 +3451,7 @@
                         return util.removeNode(node);
                     }
                     if (node.id) {
-                        if (node.id.contains("njqEditor")) {
+                        if (node.id.indexOf("njqEditor")>-1) {
                             return;
                         }
                         node.removeAttribute("id");
@@ -3825,6 +3825,9 @@
                         util.remove(divNode.lastChild);
                     }
                     util.insertAfter(enMark, stMark);
+                    if(divNode.lastChild.tagName == constants.BR){
+                    	divNode.lastChild.remove();
+                    }
                     util.moveToNodeAfter(divNode, stMark);
                     flag = false;
                 }
@@ -6068,6 +6071,11 @@
                         }
                     } else {
                         this.insertNode(range, brnode);
+                        if(range.startContainer.nodeType==1&&range.startContainer==preNode){
+                        	if(!brnode.nextSibling){
+                        		util.insertAfter(util.createCustomNode(constants.BR),brnode);
+                        	}
+                        }
                     }
                     flag = false;
                     this.setRangeAfter(brnode);
@@ -7200,7 +7208,9 @@
             xmlhttp.open("POST", userConfig.pic.picSrc, true);
             xmlhttp.send(formData);
         }
-        var customEvent = njqEditor.customEvent;
+//        var customEvent = njqEditor.customEvent;
+//        njqEditor.loadCustom(editorConfig);
+        njqEditor.customEvent(editorConfig);
 	}
 	njqEditor.eventfun = loadEvent;
 })();

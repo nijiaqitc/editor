@@ -1235,7 +1235,11 @@
                 var range = service.getRange();
                 //把选区的内容进行删除
                 if (!range.collapsed) {
-                	service.rangeAreaDele(range);
+                	if(util.getSpecalParentNode(constants.PRE, range.endContainer)==util.getSpecalParentNode(constants.PRE, range.startContainer)){
+                		range.deleteContents();
+                	}else{
+                		service.rangeAreaDele(range);
+                	}
                 }
                 //将开始标签插入到节点中做标记
                 service.insertNode(range, stMark);

@@ -7,11 +7,42 @@
 .active{
     background-color: aliceblue;
 }
+.topul{
+	list-style: none;
+}
 
+.topul li{
+	list-style: none;
+	float: left;
+}
+.topul li a {
+	font-family: "微软雅黑";
+    font-size: 14px;
+    text-decoration: none;
+    outline: none;
+    padding: 4px 14px;
+    display: block;
+    width: 100%;
+}
+.topul li a:hover{
+	background-color: #40719a;
+	color:white;
+}
 </style>
 </head>
 <body>
-	<div style="float:left;width:20%;height:100%;">
+	<div style="width:100%;height:40px;margin-bottom: 10px;">
+		<div class="panel panel-default" style="height:100%;margin-bottom: 0px;border: 0px;">
+		  <div class="panel-body" style="height: 100%;padding: 10px;">
+		  	<div style="border:1px solid;width:80px;background-color:red;height:24px;float: left;"></div>
+		  	<ul class="topul">
+		  		<li><a href="#">格式工具</a></li>
+		  		<li><a href="#">NE插件</a></li>
+		  	</ul>
+		  </div>
+		</div>
+	</div>
+	<div style="float:left;width:20%;height:100%;clear:both;">
 		<div class="panel panel-default" style="height:100%;margin-bottom: 0px;">
 		  <div class="panel-body" >
 		    <nav class="navbar  navbar-fixed-top" style="position: relative;" id="sidebar-wrapper" role="navigation">

@@ -35,4 +35,10 @@ public class TestController {
 	public String md5() {
 		return "md5";
 	}
+	
+	@RequestMapping("abc")
+	public String abc() {
+		return "abc";
+	}
+	
 }
